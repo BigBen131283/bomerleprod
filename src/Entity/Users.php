@@ -3,13 +3,15 @@
 namespace App\Entity;
 
 use App\Repository\UsersRepository;
+use App\Services\AEScrypto;
+
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Util\PropertyPath;
+
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 #[UniqueEntity(fields: ['email'], message: "Il existe déjà un compte associé à cet email")]
@@ -115,12 +117,9 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function getEmail(): ?string
     {
         return $this->email;
-    }
-
+    } 
     public function setEmail(string $email): self
     {
-        $this->email = $email;
-
         return $this;
     }
 
@@ -236,4 +235,20 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+    // Handling email encryption / decryption
+    // #[ORM\PrePersist]
+    // public function onPrePersist() { 
+    //     $AES = new AEScrypto($_ENV['AESKEY']);
+    //     $this->email = $AES->encrypt($this->email);
+    // }
+    // #[ORM\PreUpdate]
+    // public function onPreUpdate() {
+    //     $AES = new AEScrypto($_ENV['AESKEY']);
+    //     $this->email = $AES->encrypt($this->email);
+    // }
+    // #[ORM\PostLoad]
+    // public function onPostLoad() {
+    //     $AES = new AEScrypto($_ENV['AESKEY']);
+    //     $this->email = $AES->decrypt($this->email);
+    // }
 }
