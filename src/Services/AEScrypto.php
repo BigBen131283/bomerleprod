@@ -8,7 +8,7 @@ class AEScrypto
   /** @var string $key Hex encoded binary key for encryption and decryption */
   public $key = '';
   /** @var string $encrypt_method Method to use for encryption */
-  public  $encrypt_method = 'aes-256-cbc';
+  private  $encrypt_method = 'aes-256-cbc';
 
   // -------------------------------------------------------------------------------------
   /**
@@ -30,15 +30,9 @@ class AEScrypto
   public function encrypt ( $string )
   {
     // dd(openssl_get_cipher_methods());
-    // $new_iv = bin2hex ( random_bytes ( openssl_cipher_iv_length ( $this->encrypt_method ) ) );
     $new_iv = random_bytes( openssl_cipher_iv_length($this->encrypt_method)) ;
-    // dump(openssl_cipher_iv_length ( $this->encrypt_method ));
-    // dump(strlen($new_iv));
-    // dump($new_iv);
-    // dump(bin2hex($new_iv));
-    if ( $encrypted = base64_encode ( openssl_encrypt ( $string, $this->encrypt_method, $this->key, 0, $new_iv ) ) )
+    if ( $encrypted = base64_encode(openssl_encrypt( $string, $this->encrypt_method, $this->key, 0, $new_iv )))
     {
-      dump($encrypted);
       return bin2hex($new_iv).':'.$encrypted;
     }
     else
@@ -48,9 +42,13 @@ class AEScrypto
   }
 
   // -------------------------------------------------------------------------------------
-  public function decrypt ( string $encrypted)
+  public function decrypt (string $encrypted)
   {
-    if ( $decrypted = openssl_decrypt ( base64_decode ( $encrypted ), $this->encrypt_method, $this->key) )
+    $parts = explode(':', $encrypted);
+    $hexiv = $parts[0];
+    $data = $parts[1];
+    $iv = hex2bin($hexiv);
+    if ( $decrypted = openssl_decrypt(base64_decode($data), $this->encrypt_method, $this->key, 0, $iv))
     {
       return $decrypted;
     }

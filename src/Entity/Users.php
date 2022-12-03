@@ -14,6 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['email'], message: "Il existe déjà un compte associé à cet email")]
 class Users implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -85,6 +86,9 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $confirmed = null;
 
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $selector = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -120,6 +124,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     } 
     public function setEmail(string $email): self
     {
+        $this->email = $email;
         return $this;
     }
 
@@ -236,19 +241,32 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
     // Handling email encryption / decryption
-    // #[ORM\PrePersist]
-    // public function onPrePersist() { 
-    //     $AES = new AEScrypto($_ENV['AESKEY']);
-    //     $this->email = $AES->encrypt($this->email);
-    // }
-    // #[ORM\PreUpdate]
-    // public function onPreUpdate() {
-    //     $AES = new AEScrypto($_ENV['AESKEY']);
-    //     $this->email = $AES->encrypt($this->email);
-    // }
-    // #[ORM\PostLoad]
-    // public function onPostLoad() {
-    //     $AES = new AEScrypto($_ENV['AESKEY']);
-    //     $this->email = $AES->decrypt($this->email);
-    // }
+    #[ORM\PreFlush]
+    public function onPreFlush() { 
+        $AES = new AEScrypto($_ENV['AESKEY']);
+        $obfuscatedmail = $AES->encrypt($this->email);
+        $this->email = $obfuscatedmail;
+    }
+    #[ORM\PreUpdate]
+    public function onPreUpdate() {
+        $AES = new AEScrypto($_ENV['AESKEY']);
+        $this->email = $AES->encrypt($this->email);
+    }
+    #[ORM\PostLoad]
+    public function onPostLoad() {
+        $AES = new AEScrypto($_ENV['AESKEY']);
+        $this->email = $AES->decrypt($this->email);
+    }
+
+    public function getSelector(): ?string
+    {
+        return $this->selector;
+    }
+
+    public function setSelector(string $selector): self
+    {
+        $this->selector = $selector;
+
+        return $this;
+    }
 }

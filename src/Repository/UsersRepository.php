@@ -49,6 +49,16 @@ class UsersRepository extends ServiceEntityRepository
        ;
     }
 
+    public function findUserBySelector($selector): ?Users
+    {
+       return $this->createQueryBuilder('u')
+           ->andWhere('u.selector = :val')
+           ->setParameter('val', $selector)
+           ->getQuery()
+           ->getOneOrNullResult()
+       ;
+    }
+
 //    /**
 //     * @return Users[] Returns an array of Users objects
 //     */

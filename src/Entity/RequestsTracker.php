@@ -2,11 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\RequestsTrackerRepository;
+use App\Services\AEScrypto;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\RequestsTrackerRepository;
 
 #[ORM\Entity(repositoryClass: RequestsTrackerRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class RequestsTracker
 {
 
@@ -144,5 +146,24 @@ class RequestsTracker
         $this->processed = $processed;
 
         return $this;
+    }
+    // Handling email encryption / decryption
+    #[ORM\PreFlush]
+    public function onPreFlush() { 
+        $AES = new AEScrypto($_ENV['AESKEY']);
+        $obfuscatedmail = $AES->encrypt($this->email);
+        $this->email = $obfuscatedmail;
+    }
+    #[ORM\PreUpdate]
+    public function onPreUpdate() {
+        $AES = new AEScrypto($_ENV['AESKEY']);
+        $this->email = $AES->encrypt($this->email);
+    }
+    #[ORM\PostLoad]
+    public function onPostLoad() {
+        $AES = new AEScrypto($_ENV['AESKEY']);
+        dump("Encrypted iv/email : ".$this->email);
+        $this->email = $AES->decrypt($this->email);
+        dump("Decrypted email : ".$this->getEmail());
     }
 }

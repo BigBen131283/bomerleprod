@@ -35,8 +35,7 @@ class RobotController extends AbstractController
         $usrr = $entityManager->getRepository(Users::class);
         $userrequest = $rqtr->findRequestBySelector($selector);
         // Any match ??
-        if(!empty($userrequest)) {
-            // $userrequest = $rqtr->findRequestBySelector($selector)[0];
+        if(!empty($userrequest)) {  
             if($userrequest->getToken() === $token) {
                 // Now check the expiration date
                 $currentdate = date("U");
@@ -45,7 +44,8 @@ class RobotController extends AbstractController
                     $userrequest->setStatus($status); 
                     $feedback = "Votre demande de création de compte est acceptée";
                     // Set confirmation date in the user table
-                    $regusr = $usrr->findUserByEmail($userrequest->getEmail());
+                    $requestingemail = $userrequest->getEmail();
+                    $regusr = $usrr->findUserBySelector($userrequest->getSelector());
                     if(!empty($regusr)){    // Ok the user with this email is known, update it's confirmation date
                         $regusr->setConfirmed(new DateTime('now'));
                         $entityManager->persist($regusr);
@@ -53,7 +53,7 @@ class RobotController extends AbstractController
                     else {
                         $status = RequestsTracker::STATUS_ERROR;
                         $userrequest->setStatus($status);
-                        $feedback = "Votre demande d'enregistrement avec cet email [ $userrequest->getEmail() ] est invalide ";
+                        $feedback = "Votre demande d'enregistrement avec cet email [ $requestingemail ] est invalide ";
                     }
                 }
                 else {

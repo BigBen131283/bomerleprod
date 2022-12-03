@@ -56,12 +56,14 @@ class UsersController extends AbstractController
             )
             ->setConfirmpassword($user->getPassword());
             $user->setCreated(new DateTime('now', new DateTimeZone('Europe/Paris')));
+            // ---------------------------------------------------------------------
             $entityManager->persist($user);
             // ---------------------------------------------------------------------
             // Send the registration mail
             // ---------------------------------------------------------------------
             /* @$tks Token */
             $tks = $mailo2->sendRegisterConfirmation($user->getEmail());
+            $user->setSelector($tks->getSelector());
             // ---------------------------------------------------------------------
             // Track the registration request in the requests_tracker table
             // ---------------------------------------------------------------------
@@ -77,6 +79,7 @@ class UsersController extends AbstractController
                     ->setToken($tks->getToken())
                     ->setSelector($tks->getSelector())
                     ->setStatus(RequestsTracker::STATUS_REQUESTED);
+            // ---------------------------------------------------------------------
             $entityManager->persist($rqtracker);
             // ---------------------------------------------------------------------
             // Final commit of the global transaction
