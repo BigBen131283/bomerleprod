@@ -50,7 +50,8 @@
                 <li class="step">
                     <div class="article">
                         <div class="wrapper">
-                            <img src="./images/homepageimages/artisanat.jpg" alt="step 1">
+                            {# <img src="./images/homepageimages/artisanat.jpg" alt="step 1"> #}
+                            <img src="{{ asset('/images/homepageimages/artisanat.jpg') | imagine_filter('medals') }}" alt="step1">
                             <p class="number">1</p>
                         </div>
                         <p>
@@ -62,7 +63,8 @@
                 <li class="step">
                     <div class="article">
                         <div class="wrapper">
-                            <img src="./images/homepageimages/materiaux.jpg" alt="step 2">
+                            {# <img src="./images/homepageimages/materiaux.jpg" alt="step 2"> #}
+                            <img src="{{ asset('/images/homepageimages/materiaux.jpg') | imagine_filter('medals') }}" alt="step 2">
                             <p class="number">2</p>
                         </div>
                         <p>
@@ -76,7 +78,8 @@
                 <li class="step">
                     <div class="article">
                         <div class="wrapper">
-                            <img src="./images/homepageimages/money.jpg" alt="step 3">
+                            {# <img src="./images/homepageimages/money.jpg" alt="step 3"> #}
+                            <img src="{{ asset('/images/homepageimages/money.jpg') | imagine_filter('medals') }}" alt="step 3">
                             <p class="number">3</p>
                         </div>
                         <p>
